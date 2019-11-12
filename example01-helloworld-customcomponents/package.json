@@ -1,0 +1,21 @@
+{
+  "name": "no-name",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@google-web-components/google-chart": "^3.3.0",
+    "@polymer/polymer": "3.2.0",
+    "@vaadin/flow-deps": "./target/frontend",
+    "@webcomponents/webcomponentsjs": "^2.2.10"
+  },
+  "devDependencies": {
+    "webpack": "4.30.0",
+    "webpack-cli": "3.3.0",
+    "webpack-dev-server": "3.3.0",
+    "webpack-babel-multi-target-plugin": "2.1.0",
+    "copy-webpack-plugin": "5.0.3",
+    "compression-webpack-plugin": "3.0.0",
+    "webpack-merge": "4.2.1",
+    "raw-loader": "3.0.0"
+  },
+  "vaadinAppPackageHash": "a2599b4fc1a71fa6f215eafd02ba25fda071f3e33cefd26e6260ba1d3d551f65"
+}
