@@ -14,6 +14,7 @@ public class IndexView extends VerticalLayout {
         add(new RouterLink("TextField", TextFieldView.class));
         add(new RouterLink("TextField (events)", TextFieldEventsView.class));
         add(new RouterLink("Buttons", ButtonsView.class));
+        add(new RouterLink("Grid", GridView.class));
         add(new RouterLink("Other", OtherView.class));
     }
 

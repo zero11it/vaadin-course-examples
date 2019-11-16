@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>it.zero11.vaadin.course</groupId>
     <artifactId>hibernate</artifactId>
-    <name>example04-hibernate</name>
+    <name>example05-products-with-brand</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
