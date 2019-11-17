@@ -10,6 +10,7 @@ import com.vaadin.flow.router.RouterLink;
 import it.zero11.vaadin.course.view.Home;
 import it.zero11.vaadin.course.view.MyFormLayout;
 import it.zero11.vaadin.course.view.OrderedLayout;
+import it.zero11.vaadin.course.view.OrderedLayoutExercise;
 
 public class MyAppLayout extends AppLayout {
 	public MyAppLayout() {
@@ -20,7 +21,8 @@ public class MyAppLayout extends AppLayout {
 		addToNavbar(new DrawerToggle(), img);
 		Tabs tabs = new Tabs(new Tab(new RouterLink("Home", Home.class)),
 				new Tab(new RouterLink("Form Layout", MyFormLayout.class)),
-						new Tab(new RouterLink("Ordered Layout (Flexbox)", OrderedLayout.class)));
+				new Tab(new RouterLink("Ordered Layout (Flexbox)", OrderedLayout.class)),
+				new Tab(new RouterLink("Ordered Layout (Exercise)", OrderedLayoutExercise.class)));
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
 		addToDrawer(tabs);
 
