@@ -1,15 +1,12 @@
 package it.zero11.vaadin.course.view;
 
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.WrapMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-
-import it.zero11.vaadin.course.layout.MyAppLayout;
 
 @Route(value = "ordered-exercise")
 public class OrderedLayoutExercise extends VerticalLayout {
