@@ -30,7 +30,7 @@ public class Product {
 	
 	private Integer availability;
 	
-	private Date publishDate;
+	private LocalDate publishDate;
 	
 	private LocalDate firstAvailable;
 	
@@ -82,11 +82,11 @@ public class Product {
 		this.availability = availability;
 	}
 	
-	public Date getPublishDate() {
+	public LocalDate getPublishDate() {
 		return publishDate;
 	}
 
-	public void setPublishDate(Date publishDate) {
+	public void setPublishDate(LocalDate publishDate) {
 		this.publishDate = publishDate;
 	}
 
