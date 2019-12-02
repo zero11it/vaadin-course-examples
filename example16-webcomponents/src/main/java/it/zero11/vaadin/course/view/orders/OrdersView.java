@@ -23,6 +23,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 
+import it.zero11.vaadin.course.components.CircleComponent;
+import it.zero11.vaadin.course.components.RangeSlider;
 import it.zero11.vaadin.course.layout.AuthenticatedLayout;
 import it.zero11.vaadin.course.model.Order;
 import it.zero11.vaadin.course.model.Product;
@@ -35,29 +37,34 @@ import it.zero11.vaadin.course.view.AbstractSearchView;
 public class OrdersView extends AbstractSearchView<Order> {
 
 	private TextField customerFilter;
-	private NumberField minPriceFilter;
-	private NumberField maxPriceFilter;
+//	private NumberField minPriceFilter;
+//	private NumberField maxPriceFilter;
 	private ComboBox<Product> productFilter;
 	
+	private RangeSlider rangeSlider;
 	private Label soldLabel;
-	private ProgressBar progressBar;
+	private CircleComponent circleComponent;
 	
 	public OrdersView() {
 		super();
 		
-		progressBar = new ProgressBar();
-		add(progressBar);
+		circleComponent = new CircleComponent();
+		circleComponent.setPercent(0.0);
+		circleComponent.setColor("#333");
+		add(circleComponent);
 	}
 
 	private DataProvider<Order, Void> createDataProvider() {
 	
 		return DataProvider.fromCallbacks( 
 				query -> {
-					BigDecimal min = minPriceFilter.getValue() != null ? 
-							new BigDecimal(minPriceFilter.getValue()) : null;
-					BigDecimal max = maxPriceFilter.getValue() != null ? 
-							new BigDecimal(maxPriceFilter.getValue()) : null;
-					
+//					BigDecimal min = minPriceFilter.getValue() != null ? 
+//							new BigDecimal(minPriceFilter.getValue()) : null;
+//					BigDecimal max = maxPriceFilter.getValue() != null ? 
+//							new BigDecimal(maxPriceFilter.getValue()) : null;
+					BigDecimal min = new BigDecimal(rangeSlider.getLowValue());
+					BigDecimal max = new BigDecimal(rangeSlider.getHighValue());
+										
 					BigDecimal current = OrderService.getTotalSold(customerFilter.getValue(), 
 							min, max, productFilter.getValue());					
 					BigDecimal total = OrderService.getTotalSold();
@@ -67,8 +74,9 @@ public class OrdersView extends AbstractSearchView<Order> {
 					soldLabel.setText("Vendite " + current + " su " + total + " - " +
 							current.doubleValue() / total.doubleValue() * 100.0 + "%");
 					
-					progressBar.setMax(total.doubleValue());
-					progressBar.setValue(current.doubleValue());
+					circleComponent.setPercent(							
+							(int) (current.doubleValue() / total.doubleValue() * 100.0)
+							 );
 					
 					return OrderService.findBy(query.getOffset(), query.getLimit(), 
 							query.getSortOrders(),
@@ -76,11 +84,13 @@ public class OrdersView extends AbstractSearchView<Order> {
 							.stream();
 				},
 				query -> {
-					BigDecimal min = minPriceFilter.getValue() != null ? 
-							new BigDecimal(minPriceFilter.getValue()) : null;
-					BigDecimal max = maxPriceFilter.getValue() != null ? 
-							new BigDecimal(maxPriceFilter.getValue()) : null;
-							
+//					BigDecimal min = minPriceFilter.getValue() != null ? 
+//							new BigDecimal(minPriceFilter.getValue()) : null;
+//					BigDecimal max = maxPriceFilter.getValue() != null ? 
+//							new BigDecimal(maxPriceFilter.getValue()) : null;
+					BigDecimal min = new BigDecimal(rangeSlider.getLowValue());
+					BigDecimal max = new BigDecimal(rangeSlider.getHighValue());
+									
 					return OrderService.countBy(customerFilter.getValue(), min, max, 
 							productFilter.getValue()).intValue();
 				}
@@ -104,13 +114,20 @@ public class OrdersView extends AbstractSearchView<Order> {
 		customerFilter.setValueChangeMode(ValueChangeMode.LAZY);
 		customerFilter.addValueChangeListener(e -> updateData());
 		
-		minPriceFilter = new NumberField(getTranslation("orders.minprice"));
-		minPriceFilter.setValueChangeMode(ValueChangeMode.LAZY);
-		minPriceFilter.addValueChangeListener(e -> updateData());
-		
-		maxPriceFilter = new NumberField(getTranslation("orders.maxprice"));
-		maxPriceFilter.setValueChangeMode(ValueChangeMode.LAZY);
-		maxPriceFilter.addValueChangeListener(e -> updateData());
+//		minPriceFilter = new NumberField(getTranslation("orders.minprice"));
+//		minPriceFilter.setValueChangeMode(ValueChangeMode.LAZY);
+//		minPriceFilter.addValueChangeListener(e -> updateData());
+//		
+//		maxPriceFilter = new NumberField(getTranslation("orders.maxprice"));
+//		maxPriceFilter.setValueChangeMode(ValueChangeMode.LAZY);
+//		maxPriceFilter.addValueChangeListener(e -> updateData());
+				
+		rangeSlider = new RangeSlider();
+		rangeSlider.setMin(0.0);
+		rangeSlider.setMax(1000.0);
+		rangeSlider.setLowHighValue(800.0, 900.0);
+		rangeSlider.addLowValueChangeListener(e -> updateData());
+		rangeSlider.addHighValueChangeListener(e -> updateData());
 		
 		productFilter = new ComboBox<>();
 		productFilter.setLabel(getTranslation("orders.product"));
@@ -121,7 +138,7 @@ public class OrdersView extends AbstractSearchView<Order> {
 		);
 		productFilter.addValueChangeListener(e -> updateData());
 		
-		container.add(customerFilter, minPriceFilter, maxPriceFilter, productFilter);
+		container.add(customerFilter, rangeSlider, productFilter);
 	}
 
 
