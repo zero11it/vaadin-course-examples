@@ -1,0 +1,7 @@
+:host(.menu){
+	color: #9E9D24;
+}
+
+:host([selected].menu){
+	color: var(--lumo-primary-text-color);
+}
