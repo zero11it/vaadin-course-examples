@@ -13,7 +13,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
-        <vaadin.version>14.0.11</vaadin.version>
+        <vaadin.version>14.2.1</vaadin.version>
 
         <drivers.downloader.phase>pre-integration-test</drivers.downloader.phase>
     </properties>
@@ -95,7 +95,7 @@
         <dependency>
 		    <groupId>org.hibernate</groupId>
 		    <artifactId>hibernate-core</artifactId>
-		    <version>5.4.8.Final</version>
+		    <version>5.4.18.Final</version>
 		</dependency>
 		 
 		<dependency>
@@ -131,7 +131,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.3.27.v20190418</version>
+                <version>9.4.30.v20200611</version>
                 <configuration>
                     <!-- If using IntelliJ IDEA with autocompilation, this
                     might cause lots of unnecessary compilations in the
