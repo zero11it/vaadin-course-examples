@@ -19,8 +19,8 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import it.zero11.vaadin.course.data.BrandRepository;
 import it.zero11.vaadin.course.model.Brand;
-import it.zero11.vaadin.course.service.BrandService;
 
 @Route(value = "brands/edit")
 @PageTitle("Create Brand")
@@ -31,7 +31,10 @@ public class BrandsEditView extends VerticalLayout
 	
 	private Brand brand;
 	
-	public BrandsEditView() {
+	private final BrandRepository brandRepository;
+	
+	public BrandsEditView(BrandRepository brandRepository) {
+		this.brandRepository = brandRepository;	
 		setSizeFull();
 		
 		binder = new Binder<>(Brand.class);
@@ -54,7 +57,7 @@ public class BrandsEditView extends VerticalLayout
 		brandSaveButton.addClickListener(e -> {			
 			try {
 				if (binder.writeBeanIfValid(brand)) {
-					BrandService.save(brand);
+					brandRepository.save(brand);
 
 					UI.getCurrent().navigate(BrandsView.class);
 				}
@@ -95,7 +98,7 @@ public class BrandsEditView extends VerticalLayout
 		if (parameter == null)
 			brand = new Brand();
 		else
-			brand = BrandService.load(parameter);
+			brand = brandRepository.findById(parameter).orElseThrow();
 		binder.setBean(brand);
 	}
 }

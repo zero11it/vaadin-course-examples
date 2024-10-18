@@ -16,9 +16,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
+import it.zero11.vaadin.course.data.BrandRepository;
 import it.zero11.vaadin.course.layout.MyLayout;
 import it.zero11.vaadin.course.model.Brand;
-import it.zero11.vaadin.course.service.BrandService;
 
 @Route(value = "brands", layout = MyLayout.class)
 @PageTitle("Brands")
@@ -26,7 +26,10 @@ public class BrandsView extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 	private final Grid<Brand> brandGrid;
 
-	public BrandsView() {
+	private final BrandRepository brandRepository;
+	
+	public BrandsView(BrandRepository brandRepository) {
+		this.brandRepository = brandRepository;	
 		add(new H1("Brands"));
 		
 		brandGrid = new Grid<>();
@@ -44,7 +47,7 @@ public class BrandsView extends VerticalLayout {
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(event -> {
 				try {
-					BrandService.remove(brand);
+					brandRepository.delete(brand);
 
 					updateBrandData();
 				}catch(Exception exception) {
@@ -64,7 +67,7 @@ public class BrandsView extends VerticalLayout {
 	}
 
 	private void updateBrandData() {
-		List<Brand> brands = BrandService.findAll();
+		List<Brand> brands = brandRepository.findAll();
 		brandGrid.setItems(brands);
 	}
 

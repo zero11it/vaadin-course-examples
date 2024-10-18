@@ -12,9 +12,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
+import it.zero11.vaadin.course.data.ProductRepository;
 import it.zero11.vaadin.course.layout.MyLayout;
 import it.zero11.vaadin.course.model.Product;
-import it.zero11.vaadin.course.service.ProductService;
 
 @Route(value = "", layout = MyLayout.class)
 @PageTitle("Products")
@@ -22,7 +22,10 @@ public class ProductsView extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 	private final Grid<Product> productsGrid;
 
-	public ProductsView() {
+	private final ProductRepository productRepository;
+	
+	public ProductsView(ProductRepository productRepository) {
+		this.productRepository = productRepository;
 		add(new H1("Products"));
 		
 		productsGrid = new Grid<>();
@@ -41,7 +44,7 @@ public class ProductsView extends VerticalLayout {
 			
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(e -> {
-				ProductService.remove(product);
+				productRepository.delete(product);
 
 				updateProductsData();
 			});
@@ -58,7 +61,7 @@ public class ProductsView extends VerticalLayout {
 	}
 
 	private void updateProductsData() {
-		productsGrid.setItems(ProductService.findAll());
+		productsGrid.setItems(productRepository.findAll());
 	}
 
 }
