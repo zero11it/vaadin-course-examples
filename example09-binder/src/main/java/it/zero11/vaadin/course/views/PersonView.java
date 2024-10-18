@@ -59,7 +59,7 @@ public class PersonView extends VerticalLayout {
 			.withNullRepresentation("")
 			.withValidator(new StringLengthValidator("Must be 4 digit", 4, 4))
 			.withConverter(new StringToIntegerConverter("Invalid number"))
-			.withValidator((v)-> v >= 1900 && v <= Calendar.getInstance().get(Calendar.YEAR), "Invalid birth date")
+			.withValidator((v)-> v != null && v >= 1900 && v <= Calendar.getInstance().get(Calendar.YEAR), "Invalid birth date")
 			.bind(Person::getYearOfBirth, Person::setYearOfBirth);
 		add(yearOfBirth);
 		
