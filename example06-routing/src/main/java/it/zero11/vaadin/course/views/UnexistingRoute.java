@@ -1,6 +1,4 @@
-package it.zero11.vaadin.cource.views;
-
-import javax.servlet.http.HttpServletResponse;
+package it.zero11.vaadin.course.views;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
@@ -26,7 +24,7 @@ public class UnexistingRoute extends Div implements HasErrorParameter<NotFoundEx
 		message.setText("Could not navigate to '"
                 + event.getLocation().getPath()
                 + "'");
-		return HttpServletResponse.SC_NOT_FOUND;
+		return 404;
 	}
 
 }

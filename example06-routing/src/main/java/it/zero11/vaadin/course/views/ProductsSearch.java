@@ -1,4 +1,4 @@
-package it.zero11.vaadin.cource.views;
+package it.zero11.vaadin.course.views;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;

@@ -9,8 +9,8 @@ import com.vaadin.flow.router.Router;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
-import it.zero11.vaadin.cource.views.OrdersSearch;
-import it.zero11.vaadin.cource.views.ProductsSearch;
+import it.zero11.vaadin.course.views.OrdersSearch;
+import it.zero11.vaadin.course.views.ProductsSearch;
 
 @RoutePrefix("admin")
 public class AdminLayout extends Div implements RouterLayout {
