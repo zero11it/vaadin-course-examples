@@ -4,7 +4,7 @@
     <artifactId>products-with-brand-routing</artifactId>
     <name>example07-products-with-brand-routing</name>
     <version>1.0-SNAPSHOT</version>
-     <packaging>jar</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <java.version>17</java.version>

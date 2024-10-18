@@ -3,7 +3,7 @@ package it.zero11.vaadin.course.view;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.FlexLayout.WrapMode;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
@@ -33,7 +33,7 @@ public class OrderedLayoutExercise extends VerticalLayout {
 		scrollLayout.add(getNewExampleLayout(false));
 		add(scrollLayout);
 		FlexLayout footer = new FlexLayout();
-		footer.setWrapMode(WrapMode.WRAP);
+		footer.setFlexWrap(FlexWrap.WRAP);
 		footer.setJustifyContentMode(JustifyContentMode.EVENLY);
 		footer.getElement().getStyle().set("backgroundColor", "#ffffff");
 		footer.getElement().getStyle().set("border", "2px solid #888888");
