@@ -10,13 +10,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeLeaveEvent;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.BeforeLeaveEvent.ContinueNavigationAction;
 import com.vaadin.flow.router.BeforeLeaveObserver;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 
+import it.zero11.vaadin.course.data.BrandRepository;
 import it.zero11.vaadin.course.model.Brand;
-import it.zero11.vaadin.course.service.BrandService;
 
 @Route(value = "brands/create")
 @PageTitle("Create Brand")
@@ -25,7 +25,7 @@ public class BrandsCreateView extends VerticalLayout
 	private static final long serialVersionUID = 1L;
 	private final Binder<Brand> binder;
 	
-	public BrandsCreateView() {
+	public BrandsCreateView(BrandRepository brandRepository) {
 		setSizeFull();
 		
 		binder = new Binder<>(Brand.class);
@@ -48,7 +48,7 @@ public class BrandsCreateView extends VerticalLayout
 		brandSaveButton.addClickListener(e -> {
 			Brand brand = new Brand();
 			if (binder.writeBeanIfValid(brand)) {
-				BrandService.save(brand);
+				brandRepository.save(brand);
 	
 				UI.getCurrent().navigate(BrandsView.class);
 			}
