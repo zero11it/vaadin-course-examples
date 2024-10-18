@@ -24,7 +24,8 @@ public class OtherView extends VerticalLayout {
 		radioButtonGroup.setItems(TimeUnit.DAYS, TimeUnit.HOURS, TimeUnit.MINUTES);
 		add(radioButtonGroup);
 		
-		Select<TimeUnit> select = new Select<>(TimeUnit.values());
+		Select<TimeUnit> select = new Select<>();
+		select.setItems(TimeUnit.values());
 		select.setLabel("Select");
 		add(select);
 		
