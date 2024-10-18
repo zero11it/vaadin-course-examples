@@ -14,10 +14,10 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import it.zero11.vaadin.course.data.BrandRepository;
+import it.zero11.vaadin.course.data.ProductRepository;
 import it.zero11.vaadin.course.model.Brand;
 import it.zero11.vaadin.course.model.Product;
-import it.zero11.vaadin.course.service.BrandService;
-import it.zero11.vaadin.course.service.ProductService;
 
 @Route(value = "")
 @PageTitle("Index")
@@ -32,8 +32,13 @@ public class ProductsView extends VerticalLayout {
 	private final TextField brandNameTextField;
 	private final Button brandSaveButton;
 
-	public ProductsView() {
-
+	private final ProductRepository productRepository;
+	private final BrandRepository brandRepository;
+	
+	public ProductsView(ProductRepository productRepository, BrandRepository brandRepository) {
+		this.productRepository = productRepository;
+		this.brandRepository = brandRepository;
+		
 		brandGrid = new Grid<>();
 		brandGrid.setHeight("150px");
 		brandGrid.addColumn(Brand::getId).setHeader("Id");
@@ -42,7 +47,7 @@ public class ProductsView extends VerticalLayout {
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(event -> {
 				try {
-					BrandService.remove(brand);
+					brandRepository.delete(brand);
 
 					updateBrandData();
 				}catch(Exception exception) {
@@ -63,7 +68,7 @@ public class ProductsView extends VerticalLayout {
 		brandSaveButton.addClickListener(e -> {
 			Brand b = new Brand();
 			b.setName(brandNameTextField.getValue());
-			BrandService.save(b);
+			brandRepository.save(b);
 
 			brandNameTextField.clear();
 			brandNameTextField.focus();
@@ -81,7 +86,7 @@ public class ProductsView extends VerticalLayout {
 		productsGrid.addColumn(new ComponentRenderer<Button, Product>(product -> {
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(e -> {
-				ProductService.remove(product);
+				productRepository.delete(product);
 
 				updateProductsData();
 			});
@@ -111,7 +116,7 @@ public class ProductsView extends VerticalLayout {
 			p.setSku(skuTextField.getValue());
 			p.setBrand(brandComboBox.getValue());
 			p.setDescription(descriptionTextArea.getValue());
-			ProductService.save(p);
+			productRepository.save(p);
 
 			skuTextField.clear();
 			brandComboBox.clear();
@@ -127,13 +132,13 @@ public class ProductsView extends VerticalLayout {
 	}
 
 	private void updateBrandData() {
-		List<Brand> brands = BrandService.findAll();
+		List<Brand> brands = brandRepository.findAll();
 		brandGrid.setItems(brands);
 		brandComboBox.setItems(brands);
 	}
 
 	private void updateProductsData() {
-		productsGrid.setItems(ProductService.findAll());
+		productsGrid.setItems(productRepository.findAll());
 	}
 
 }
