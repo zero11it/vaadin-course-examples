@@ -11,10 +11,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import it.zero11.vaadin.course.data.BrandRepository;
+import it.zero11.vaadin.course.data.ProductRepository;
 import it.zero11.vaadin.course.model.Brand;
 import it.zero11.vaadin.course.model.Product;
-import it.zero11.vaadin.course.service.BrandService;
-import it.zero11.vaadin.course.service.ProductService;
 
 @Route(value = "products/create")
 @PageTitle("Products")
@@ -25,7 +25,11 @@ public class ProductsCreateView extends VerticalLayout {
 	private final TextArea descriptionTextArea;
 	private final Button productSaveButton;
 
-	public ProductsCreateView() {
+	private final BrandRepository brandRepository;
+	
+	public ProductsCreateView(ProductRepository productRepository, BrandRepository brandRepository) {
+		this.brandRepository = brandRepository;
+		
 		skuTextField = new TextField();
 		skuTextField.setLabel("SKU");
 		add(skuTextField);
@@ -45,7 +49,7 @@ public class ProductsCreateView extends VerticalLayout {
 			p.setSku(skuTextField.getValue());
 			p.setBrand(brandComboBox.getValue());
 			p.setDescription(descriptionTextArea.getValue());
-			ProductService.save(p);
+			productRepository.save(p);
 
 			UI.getCurrent().navigate(ProductsView.class);
 		});
@@ -55,7 +59,7 @@ public class ProductsCreateView extends VerticalLayout {
 	}
 
 	private void updateBrandData() {
-		List<Brand> brands = BrandService.findAll();
+		List<Brand> brands = brandRepository.findAll();
 		brandComboBox.setItems(brands);
 	}
 }

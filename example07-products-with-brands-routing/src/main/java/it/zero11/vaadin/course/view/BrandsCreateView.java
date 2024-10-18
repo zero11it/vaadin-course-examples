@@ -7,8 +7,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import it.zero11.vaadin.course.data.BrandRepository;
 import it.zero11.vaadin.course.model.Brand;
-import it.zero11.vaadin.course.service.BrandService;
 
 @Route(value = "brands/create")
 @PageTitle("Create Brand")
@@ -17,7 +17,7 @@ public class BrandsCreateView extends VerticalLayout {
 	private final TextField brandNameTextField;
 	private final Button brandSaveButton;
 
-	public BrandsCreateView() {
+	public BrandsCreateView(BrandRepository brandRepository) {
 		brandNameTextField = new TextField();
 		brandNameTextField.setLabel("Brand");
 		add(brandNameTextField);
@@ -26,7 +26,7 @@ public class BrandsCreateView extends VerticalLayout {
 		brandSaveButton.addClickListener(e -> {
 			Brand b = new Brand();
 			b.setName(brandNameTextField.getValue());
-			BrandService.save(b);
+			brandRepository.save(b);
 
 			UI.getCurrent().navigate(BrandsView.class);
 		});
