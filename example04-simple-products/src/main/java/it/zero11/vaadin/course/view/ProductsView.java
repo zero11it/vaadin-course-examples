@@ -10,12 +10,13 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import it.zero11.vaadin.course.data.ProductRepository;
 import it.zero11.vaadin.course.model.Product;
-import it.zero11.vaadin.course.service.ProductService;
 
 @Route(value = "")
 @PageTitle("Index")
 public class ProductsView extends VerticalLayout {
+	
 	private static final long serialVersionUID = 1L;
 	private final Grid<Product> productsGrid;
 	private final TextField brandTextField;
@@ -23,17 +24,17 @@ public class ProductsView extends VerticalLayout {
 	private final TextArea descriptionTextArea;
 	private final Button saveButton;
 	
-	public ProductsView() {
-		productsGrid = new Grid<>();
+	private final ProductRepository productRepository;
+	
+	public ProductsView(ProductRepository productRepository) {
+		this.productRepository = productRepository;
+		
+		productsGrid = new Grid<>(Product.class);
 		productsGrid.setHeight("300px");
-		productsGrid.addColumn(Product::getId).setHeader("Id");
-		productsGrid.addColumn(Product::getBrand).setHeader("Brand").setSortable(true);
-		productsGrid.addColumn(Product::getSku).setHeader("SKU");
-		productsGrid.addColumn(Product::getDescription).setHeader("Description");
 		productsGrid.addColumn(new ComponentRenderer<Button, Product>(product -> {
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(e -> {
-				ProductService.remove(product);
+				productRepository.delete(product);
 					
 				updateGridData();
 			});
@@ -62,7 +63,7 @@ public class ProductsView extends VerticalLayout {
 			p.setSku(skuTextField.getValue());
 			p.setBrand(brandTextField.getValue());
 			p.setDescription(descriptionTextArea.getValue());
-			ProductService.save(p);
+			productRepository.save(p);
 			
 			skuTextField.clear();
 			brandTextField.clear();
@@ -77,7 +78,7 @@ public class ProductsView extends VerticalLayout {
     }
 	
 	private void updateGridData() {
-		productsGrid.setItems(ProductService.findAll());
+		productsGrid.setItems(productRepository.findAll());
 	}
 
 }
