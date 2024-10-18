@@ -2,3 +2,5 @@
 .DS_Store
 /.recommenders/
 example00-emptyproject/frontend/generated
+example01-helloworld/frontend/generated
+example02-helloworld-customcomponents/frontend/generated
