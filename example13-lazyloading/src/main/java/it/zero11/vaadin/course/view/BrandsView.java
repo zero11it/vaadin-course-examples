@@ -13,7 +13,7 @@ import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -26,9 +26,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
+import it.zero11.vaadin.course.data.BrandRepository;
 import it.zero11.vaadin.course.layout.MyLayout;
 import it.zero11.vaadin.course.model.Brand;
-import it.zero11.vaadin.course.service.BrandService;
 
 @Route(value = "brands", layout = MyLayout.class)
 @PageTitle("Brands")
@@ -37,9 +37,12 @@ public class BrandsView extends VerticalLayout {
 	private final Grid<Brand> brandGrid;
 	
 	private ListDataProvider<Brand> dataProvider;
-	private Label totalResultLabel;
+	private NativeLabel totalResultLabel;
 	
-	public BrandsView() {
+	private final BrandRepository brandRepository;
+	
+	public BrandsView(BrandRepository brandRepository) {
+		this.brandRepository = brandRepository;	
 		add(new H4("Brands"));
 		
 		TextField searchTextField = new TextField();
@@ -65,7 +68,7 @@ public class BrandsView extends VerticalLayout {
 			.setSortable(true);
 		brandGrid.addColumn(new ComponentRenderer<>(brand -> {
 			if (brand.getImageUrl() == null) 
-				return new Label();
+				return new NativeLabel();
 			else {
 				Image image = new Image(brand.getImageUrl(), "boh");
 				image.setHeight("40px");
@@ -86,7 +89,7 @@ public class BrandsView extends VerticalLayout {
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(event -> {
 				try {
-					BrandService.remove(brand);
+					brandRepository.delete(brand);
 
 					updateBrandData();
 				}catch(Exception exception) {
@@ -103,7 +106,7 @@ public class BrandsView extends VerticalLayout {
 
 		brandGrid.setItemDetailsRenderer(new ComponentRenderer<Component, Brand>(
 				brand -> {
-					Label content = new Label();
+					NativeLabel content = new NativeLabel();
 					content.setText(brand.getDescription());
 					return content;
 				}));	
@@ -114,7 +117,7 @@ public class BrandsView extends VerticalLayout {
 		HeaderCell searchCell = header.join(idCol, nameCol);
 		searchCell.setComponent(searchTextField);
 		
-		totalResultLabel = new Label();
+		totalResultLabel = new NativeLabel();
 		FooterRow footer = brandGrid.appendFooterRow();
 		footer.getCell(nameCol).setComponent(totalResultLabel);
 		add(brandGrid);
@@ -124,7 +127,7 @@ public class BrandsView extends VerticalLayout {
 		Button multiDeleteButton = new Button("Cancella selezionati");
 		multiDeleteButton.addClickListener(e -> {
 			for (Brand brand : brandGrid.getSelectedItems()) {
-				BrandService.remove(brand);
+				brandRepository.delete(brand);
 			}
 			updateBrandData();
 			Notification.show("Cancellazione effettuata");
@@ -135,7 +138,7 @@ public class BrandsView extends VerticalLayout {
 	}
 
 	private void updateBrandData() {
-		List<Brand> brands = BrandService.findAll();
+		List<Brand> brands = brandRepository.findAll();
 		dataProvider = new ListDataProvider<Brand>(brands);
 		brandGrid.setDataProvider(dataProvider);
 		totalResultLabel.setText("Risultati: " + brands.size());

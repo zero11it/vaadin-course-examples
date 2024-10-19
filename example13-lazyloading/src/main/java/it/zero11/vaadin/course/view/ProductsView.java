@@ -2,6 +2,9 @@ package it.zero11.vaadin.course.view;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Stream;
+
+import org.springframework.data.domain.Pageable;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -11,23 +14,25 @@ import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
+import it.zero11.vaadin.course.data.BrandRepository;
+import it.zero11.vaadin.course.data.ProductRepository;
 import it.zero11.vaadin.course.layout.MyLayout;
 import it.zero11.vaadin.course.model.Product;
-import it.zero11.vaadin.course.service.ProductService;
+import it.zero11.vaadin.course.utils.VaadinUtils;
 
 @Route(value = "", layout = MyLayout.class)
 @PageTitle("Products")
@@ -37,8 +42,9 @@ public class ProductsView extends VerticalLayout {
 	
 	private NumberField minPriceFilter;
 	private NumberField maxPriceFilter;
-	
-	public ProductsView() {
+		
+	public ProductsView(ProductRepository productRepository, BrandRepository brandRepository) {
+		
 		add(new H1("Products"));
 		
 		productsGrid = new Grid<>();
@@ -53,7 +59,7 @@ public class ProductsView extends VerticalLayout {
 					image.setHeight("40px");
 					component.add(image);
 				}
-				Label label = new Label(product.getBrand().getName());
+				NativeLabel label = new NativeLabel(product.getBrand().getName());
 				label.getElement().getStyle().set("padding", "10px");
 				component.add(label);
 			}
@@ -98,7 +104,7 @@ public class ProductsView extends VerticalLayout {
 			
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(e -> {
-				ProductService.remove(product);
+				productRepository.delete(product);
 
 				productsGrid.getDataProvider().refreshAll();
 			});
@@ -117,18 +123,17 @@ public class ProductsView extends VerticalLayout {
 //		HeaderCell warehouseCell = header.join(availabilityCol, priceCol, actionCol);
 //		warehouseCell.setComponent(new Label("Dati magazzino"));
 		
-		
 		HeaderRow header = productsGrid.prependHeaderRow();
 		HeaderCell anagCell = header.join(idCol, brandCol, eanCol, 
 				publishDateCol, skuCol, descCol);
-		anagCell.setComponent(new Label("Dati anagrafici"));
+		anagCell.setComponent(new NativeLabel("Dati anagrafici"));
 
 		HeaderCell warehouseCell = header.join(availabilityCol, priceCol, actionCol);
-		warehouseCell.setComponent(new Label("Dati magazzino"));
+		warehouseCell.setComponent(new NativeLabel("Dati magazzino"));
 		
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.setWidthFull();
-		filterLayout.add(new Label("Sku"));
+		filterLayout.add(new NativeLabel("Sku"));
 		TextField skuFilter = new TextField();	
 		skuFilter.setValueChangeMode(ValueChangeMode.LAZY);
 		
@@ -137,7 +142,7 @@ public class ProductsView extends VerticalLayout {
 		
 		filterLayout.add(skuFilter);
 		filterLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-		filterLayout.add(new Label("Range di prezzo"));
+		filterLayout.add(new NativeLabel("Range di prezzo"));
 		minPriceFilter = new NumberField();
 		maxPriceFilter = new NumberField();
 		minPriceFilter.setValueChangeMode(ValueChangeMode.LAZY);
@@ -148,29 +153,23 @@ public class ProductsView extends VerticalLayout {
 		filterLayout.add(minPriceFilter, maxPriceFilter);
 		header = productsGrid.prependHeaderRow();
 		header.getCell(idCol).setComponent(filterLayout);
-		add(filterLayout);
+//		add(filterLayout);
 		
-		DataProvider<Product, Void> dataProvider = DataProvider.fromCallbacks( 
-			query -> {
+		productsGrid.setItems(query -> {
+		      
+			try {
 				BigDecimal min = minPriceFilter.getValue() != null ? 
 						new BigDecimal(minPriceFilter.getValue()) : null;
 				BigDecimal max = maxPriceFilter.getValue() != null ? 
 						new BigDecimal(maxPriceFilter.getValue()) : null;
+				Pageable pageable = VaadinUtils.toPageable(query);
 				
-				return ProductService.findBy(query.getOffset(), query.getLimit(), query.getSortOrders(),
-						skuFilter.getValue(), min, max)
-						.stream();
-			},
-			query -> {
-				BigDecimal min = minPriceFilter.getValue() != null ? 
-						new BigDecimal(minPriceFilter.getValue()) : null;
-				BigDecimal max = maxPriceFilter.getValue() != null ? 
-						new BigDecimal(maxPriceFilter.getValue()) : null;
-						
-				return ProductService.countBy(skuFilter.getValue(), min, max).intValue();
+				return productRepository.searchBy(skuFilter.getValue(), min, max, pageable).stream();
+			} catch (Exception e) {
+				Notification.show(e.getMessage());
+				return Stream.empty();
 			}
-		);
-		productsGrid.setDataProvider(dataProvider);
+		});
 		
 		add(productsGrid);
 
