@@ -138,13 +138,13 @@ public class OrdersView extends VerticalLayout {
 						min, max, productFilter.getValue());					
 				BigDecimal total = orderService.getTotalSold();
 				
-//				soldLabel.setText("Vendite " + current + " su " + total + " - " +
-//						current.divide(total).toString() + "%");
-				soldLabel.setText("Vendite " + current + " su " + total + " - " +
-						current.doubleValue() / total.doubleValue() * 100.0 + "%");
-				
-				progressBar.setMax(total.doubleValue());
-				progressBar.setValue(current.doubleValue());
+				if (current != null && total != null) {
+					soldLabel.setText("Vendite " + current + " su " + total + " - " +
+							current.doubleValue() / total.doubleValue() * 100.0 + "%");
+					
+					progressBar.setMax(total.doubleValue());
+					progressBar.setValue(current.doubleValue());					
+				}
 				
 				Pageable pageable = VaadinUtils.toPageable(query);
 				
