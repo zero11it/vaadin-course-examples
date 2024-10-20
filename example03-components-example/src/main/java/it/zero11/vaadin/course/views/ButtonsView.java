@@ -3,13 +3,13 @@ package it.zero11.vaadin.course.views;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "buttons")
 @PageTitle("Buttons")
-public class ButtonsView extends VerticalLayout {
+public class ButtonsView extends HorizontalLayout {
 	private static final long serialVersionUID = 1L;
 
 	public ButtonsView() {
