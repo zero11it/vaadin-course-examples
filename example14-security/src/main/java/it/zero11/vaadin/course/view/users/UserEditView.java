@@ -40,7 +40,11 @@ public class UserEditView extends VerticalLayout
 	
 	private User user;
 	
-	public UserEditView() {
+	private final UserService userService;
+	
+	public UserEditView(UserService userService) {
+		this.userService = userService;
+		
 		setSizeFull();
 		
 		binder = new Binder<>(User.class);
@@ -95,7 +99,7 @@ public class UserEditView extends VerticalLayout
 				user.setPassword(passwordTextField.getValue());
 				
 				if (binder.writeBeanIfValid(user)) {
-					UserService.save(user);
+					userService.save(user);
 
 					UI.getCurrent().navigate(UsersView.class);
 				}
@@ -137,7 +141,7 @@ public class UserEditView extends VerticalLayout
 			user = new User();
 			user.setActive(true);
 		} else
-			user = UserService.load(parameter);		
+			user = userService.load(parameter);		
 		binder.setBean(user);
 	}
 

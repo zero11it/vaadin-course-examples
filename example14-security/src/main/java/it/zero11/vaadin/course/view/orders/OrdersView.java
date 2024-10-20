@@ -2,6 +2,9 @@ package it.zero11.vaadin.course.view.orders;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Stream;
+
+import org.springframework.data.domain.Pageable;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -10,23 +13,22 @@ import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
+import it.zero11.vaadin.course.data.ProductRepository;
 import it.zero11.vaadin.course.layout.AuthenticatedLayout;
 import it.zero11.vaadin.course.model.Order;
 import it.zero11.vaadin.course.model.Product;
 import it.zero11.vaadin.course.service.OrderService;
-import it.zero11.vaadin.course.service.ProductService;
-import it.zero11.vaadin.course.utils.OrderUtils;
+import it.zero11.vaadin.course.utils.VaadinUtils;
 
 @Route(value = "orders", layout = AuthenticatedLayout.class)
 public class OrdersView extends VerticalLayout {
@@ -37,10 +39,16 @@ public class OrdersView extends VerticalLayout {
 	private ComboBox<Product> productFilter;
 	private Grid<Order> ordersGrid;
 	
-	private Label soldLabel;
+	private NativeLabel soldLabel;
 	private ProgressBar progressBar;
 	
-	public OrdersView() {
+	private final ProductRepository productRepository;
+	private final OrderService orderService;
+	
+	public OrdersView(ProductRepository productRepository, OrderService orderService) {
+		this.productRepository = productRepository;
+		this.orderService = orderService;
+		
 		setSizeFull();
 		
 		add(new H1("Orders"));
@@ -73,7 +81,7 @@ public class OrdersView extends VerticalLayout {
 		
 		productFilter = new ComboBox<>();
 		productFilter.setLabel("Product");
-		productFilter.setItems(ProductService.findAll());
+		productFilter.setItems(productRepository.findAll());
 		productFilter.setItemLabelGenerator(
 				product -> product.getSku() != null ? 
 						product.getSku() : "?"
@@ -115,57 +123,48 @@ public class OrdersView extends VerticalLayout {
 			.setSortProperty("price")
 			.setHeader("Price").setWidth("70px");
 		
-		soldLabel = new Label();
+		soldLabel = new NativeLabel();
 		FooterRow footer = ordersGrid.appendFooterRow();
 		footer.getCell(idCol).setComponent(soldLabel);
 		
-		ordersGrid.setDataProvider(createDataProvider());
-		
-		return ordersGrid;
-	}
-	
-	private DataProvider<Order, Void> createDataProvider() {
-	
-		return DataProvider.fromCallbacks( 
-				query -> {
-					BigDecimal min = minPriceFilter.getValue() != null ? 
-							new BigDecimal(minPriceFilter.getValue()) : null;
-					BigDecimal max = maxPriceFilter.getValue() != null ? 
-							new BigDecimal(maxPriceFilter.getValue()) : null;
-					
-					BigDecimal current = OrderService.getTotalSold(customerFilter.getValue(), 
-							min, max, productFilter.getValue());					
-					BigDecimal total = OrderService.getTotalSold();
-					
-//					soldLabel.setText("Vendite " + current + " su " + total + " - " +
-//							current.divide(total).toString() + "%");
+
+		ordersGrid.setItems(query -> {
+		      
+			try {
+				BigDecimal min = minPriceFilter.getValue() != null ? 
+						new BigDecimal(minPriceFilter.getValue()) : null;
+				BigDecimal max = maxPriceFilter.getValue() != null ? 
+						new BigDecimal(maxPriceFilter.getValue()) : null;
+				
+				BigDecimal current = orderService.getTotalSold(customerFilter.getValue(), 
+						min, max, productFilter.getValue());					
+				BigDecimal total = orderService.getTotalSold();
+				
+				if (current != null && total != null) {
 					soldLabel.setText("Vendite " + current + " su " + total + " - " +
 							current.doubleValue() / total.doubleValue() * 100.0 + "%");
 					
 					progressBar.setMax(total.doubleValue());
 					progressBar.setValue(current.doubleValue());
-					
-					return OrderService.findBy(query.getOffset(), query.getLimit(), 
-							query.getSortOrders(),
-							customerFilter.getValue(), min, max, productFilter.getValue())
-							.stream();
-				},
-				query -> {
-					BigDecimal min = minPriceFilter.getValue() != null ? 
-							new BigDecimal(minPriceFilter.getValue()) : null;
-					BigDecimal max = maxPriceFilter.getValue() != null ? 
-							new BigDecimal(maxPriceFilter.getValue()) : null;
-							
-					return OrderService.countBy(customerFilter.getValue(), min, max, 
-							productFilter.getValue()).intValue();
 				}
-			);
+				
+				Pageable pageable = VaadinUtils.toPageable(query);
+				
+				return orderService.searchBy(customerFilter.getValue(), min, max, 
+						productFilter.getValue(), pageable).stream();
+			} catch (Exception e) {
+				Notification.show(e.getMessage());
+				return Stream.empty();
+			}
+		});
+		
+		return ordersGrid;
 	}
 	
 	private Component createButtons() {
 		Button generateButton = new Button("Generate orders");
 		generateButton.addClickListener(e -> {
-			OrderUtils.generateRandomOrders(1000);
+			orderService.generateRandomOrders(1000);
 			updateData();
 			Notification.show("Operation completed successfully");
 		});

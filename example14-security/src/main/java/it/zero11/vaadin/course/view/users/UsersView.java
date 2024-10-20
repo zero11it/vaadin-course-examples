@@ -34,8 +34,11 @@ public class UsersView extends VerticalLayout
 	private final Grid<User> userGrid;
 	
 	private ListDataProvider<User> dataProvider;
-	
-	public UsersView() {
+
+	private final UserService userService;
+
+	public UsersView(UserService userService) {
+		this.userService = userService;
 		add(new H4("Users"));
 		
 		userGrid = new Grid<>();
@@ -65,7 +68,7 @@ public class UsersView extends VerticalLayout
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(event -> {
 				try {
-					UserService.remove(user);
+					userService.remove(user);
 
 					updateUserData();
 				}catch(Exception exception) {
@@ -88,7 +91,7 @@ public class UsersView extends VerticalLayout
 	}
 
 	private void updateUserData() {
-		List<User> users = UserService.findAll();
+		List<User> users = userService.findAll();
 		userGrid.setItems(users);
 	}
 

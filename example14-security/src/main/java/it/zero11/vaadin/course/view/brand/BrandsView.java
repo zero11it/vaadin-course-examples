@@ -12,6 +12,7 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -23,9 +24,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
+import it.zero11.vaadin.course.data.BrandRepository;
 import it.zero11.vaadin.course.layout.AuthenticatedLayout;
 import it.zero11.vaadin.course.model.Brand;
-import it.zero11.vaadin.course.service.BrandService;
 import it.zero11.vaadin.course.view.AbstractSearchView;
 
 @SuppressWarnings("serial")
@@ -34,16 +35,19 @@ import it.zero11.vaadin.course.view.AbstractSearchView;
 public class BrandsView extends AbstractSearchView<Brand>  {
 		
 	private ListDataProvider<Brand> dataProvider;
-	private Label totalResultLabel;
+	private NativeLabel totalResultLabel;
 	
-	public BrandsView() {
+	private final BrandRepository brandRepository;
+	
+	public BrandsView(BrandRepository brandRepository) {
 		super();
+		this.brandRepository = brandRepository;	
 		
 		updateBrandData();
 	}
 
 	private void updateBrandData() {
-		List<Brand> brands = BrandService.findAll();
+		List<Brand> brands = brandRepository.findAll();
 		dataProvider = new ListDataProvider<Brand>(brands);
 		grid.setDataProvider(dataProvider);
 		totalResultLabel.setText("Risultati: " + brands.size());
@@ -104,7 +108,7 @@ public class BrandsView extends AbstractSearchView<Brand>  {
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(event -> {
 				try {
-					BrandService.remove(brand);
+					brandRepository.delete(brand);
 
 					updateBrandData();
 				}catch(Exception exception) {
@@ -128,7 +132,7 @@ public class BrandsView extends AbstractSearchView<Brand>  {
 		
 		brandGrid.setSelectionMode(SelectionMode.MULTI);
 				
-		totalResultLabel = new Label();
+		totalResultLabel = new NativeLabel();
 		FooterRow footer = brandGrid.appendFooterRow();
 		footer.getCell(nameCol).setComponent(totalResultLabel);
 		
@@ -143,7 +147,7 @@ public class BrandsView extends AbstractSearchView<Brand>  {
 		Button multiDeleteButton = new Button("Cancella selezionati");
 		multiDeleteButton.addClickListener(e -> {
 			for (Brand brand : grid.getSelectedItems()) {
-				BrandService.remove(brand);
+				brandRepository.delete(brand);
 			}
 			updateBrandData();
 			Notification.show("Cancellazione effettuata");
