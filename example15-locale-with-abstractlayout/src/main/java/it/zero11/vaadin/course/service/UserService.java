@@ -6,61 +6,50 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Random;
 
-import javax.persistence.NoResultException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import it.zero11.vaadin.course.data.UserRepository;
 import it.zero11.vaadin.course.exceptions.NoUserException;
 import it.zero11.vaadin.course.exceptions.UserDisabledException;
 import it.zero11.vaadin.course.exceptions.WrongPasswordException;
 import it.zero11.vaadin.course.model.User;
-import it.zero11.vaadin.course.utils.JPAUtils;
 
+@Service
 public class UserService {
-	public static List<User> findAll() {
-		return JPAUtils.runInTransaction(em -> {
-			
-			return em.createQuery("from User", User.class)					
-					.getResultList();
-		});
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	public List<User> findAll() {
+		return userRepository.findAll();
 	}
 
-	public static User load(Long id) {
-		return JPAUtils.runInTransaction(em -> {
-			return em.find(User.class, id);
-		});
+	public User load(Long id) {
+		return userRepository.findById(id).orElse(null);
 	}
 	
-	public static User getByUsername(String username) {
-		return JPAUtils.runInTransaction(em -> {			
-			try {
-				return em.createQuery("from User where lower(username) = :username", User.class)
-						.setParameter("username", username.toLowerCase())
-						.getSingleResult();
-			} catch (NoResultException e) {
-				return null;
-			}
-		});
+	public User getByUsername(String username) {
+		return userRepository.findByUsername(username).orElse(null);
 	}
 	
-	public static void save(User user) {
-		JPAUtils.runInTransaction(em -> {
-			if (user.getPassword() == null || user.getPassword().trim().length() == 0) {
-				User oldUser = em.find(User.class, user.getId());
-				user.setPassword(oldUser.getPassword());
-			} else {
-				Random rnd = new Random();
-				byte[] bytes = new byte[5];				
-				rnd.nextBytes(bytes);
-				String salt = new String(bytes, Charset.forName("UTF-8"));				
-				String hash = toHash(salt, user.getPassword());
-				
-				user.setPassword(hash);		
-				user.setSalt(salt);
-			}
-			em.merge(user);
-		});
+	public void save(User user) {
+		User existingUser = getByUsername(user.getUsername());
+		if (existingUser != null && (user.getPassword() == null || user.getPassword().isEmpty())) {
+			user.setPassword(existingUser.getPassword());
+		} else {
+			Random rnd = new Random();
+			byte[] bytes = new byte[5];				
+			rnd.nextBytes(bytes);
+			String salt = new String(bytes, Charset.forName("UTF-8"));				
+			String hash = toHash(salt, user.getPassword());
+			user.setPassword(hash);		
+			user.setSalt(salt);
+		}
+		userRepository.save(user);
 	}
 
-	private static String toHash(String salt, String password) {
+	private String toHash(String salt, String password) {
 		String hash = salt + password;
 		try {
 			return new String( 
@@ -73,7 +62,7 @@ public class UserService {
 		}
 	}
 	
-	public static User login(String username, String password) 
+	public User login(String username, String password) 
 			throws NoUserException, UserDisabledException, WrongPasswordException {
 		User user = getByUsername(username);
 		if (user == null)
@@ -92,9 +81,7 @@ public class UserService {
 			throw new WrongPasswordException();
 	}
 	
-	public static void remove(User user) {
-		JPAUtils.runInTransaction(em -> {
-			em.remove(em.find(User.class, user.getId()));
-		});
+	public void remove(User user) {
+		userRepository.delete(user);
 	}
 }

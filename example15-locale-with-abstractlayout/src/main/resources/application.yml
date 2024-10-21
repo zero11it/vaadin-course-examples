@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:h2:~/vaadin-example-db;DB_CLOSE_ON_EXIT=FALSE
+    username: exampleuser
+    password: example
+    driverClassName: org.h2.Driver
+  jpa:
+    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    hibernate.ddl-auto: update
+  h2:
+    console.enabled: true
+
+server:
+  port: ${PORT:8080}
+
+logging:
+  level:
+    org:
+      atmosphere: warn
+
+# Launch the default browser when starting the application in development mode
+vaadin:
+  launch-browser: true

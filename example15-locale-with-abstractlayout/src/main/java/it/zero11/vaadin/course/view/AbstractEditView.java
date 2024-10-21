@@ -12,11 +12,12 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.BeforeLeaveEvent;
 import com.vaadin.flow.router.BeforeLeaveEvent.ContinueNavigationAction;
 import com.vaadin.flow.router.BeforeLeaveObserver;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 
 public abstract class AbstractEditView<T> extends VerticalLayout
-	implements BeforeLeaveObserver, HasUrlParameter<Long> {
+	implements BeforeLeaveObserver, HasDynamicTitle, HasUrlParameter<Long> {
 
 	protected Binder<T> binder;
 	
@@ -90,5 +91,6 @@ public abstract class AbstractEditView<T> extends VerticalLayout
 	abstract protected void onSave();
 
 	abstract protected void onCancel();
+	
 }
 

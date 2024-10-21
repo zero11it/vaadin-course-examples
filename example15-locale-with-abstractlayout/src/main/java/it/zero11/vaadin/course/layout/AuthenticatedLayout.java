@@ -7,7 +7,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
@@ -18,9 +18,9 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinSession;
 
+import it.zero11.vaadin.course.i18n.Corso18NProvider;
 import it.zero11.vaadin.course.model.Ruolo;
 import it.zero11.vaadin.course.model.User;
-import it.zero11.vaadin.course.utils.TranslationProvider;
 import it.zero11.vaadin.course.view.LoginView;
 import it.zero11.vaadin.course.view.brand.BrandsView;
 import it.zero11.vaadin.course.view.orders.OrdersView;
@@ -32,12 +32,12 @@ public class AuthenticatedLayout extends AppLayout
 	implements RouterLayout, BeforeEnterObserver {
 	
 	private User user;
-	private Label welcome;
+	private NativeLabel welcome;
 	
 	private Tab userTab;
 	private Select<Locale> locales;
 	
-	public AuthenticatedLayout() {
+	public AuthenticatedLayout(Corso18NProvider it18n) {
 		setPrimarySection(Section.NAVBAR);
 
 		Image img = new Image("https://i.imgur.com/GPpnszs.png", "Vaadin Logo");
@@ -45,14 +45,14 @@ public class AuthenticatedLayout extends AppLayout
 
 		
 		locales = new Select<Locale>();
-		locales.setItems(new TranslationProvider().getProvidedLocales());
+		locales.setItems(it18n.getProvidedLocales());
 		locales.setValue(VaadinSession.getCurrent().getLocale());
 		locales.addValueChangeListener(event -> {		
 			VaadinSession.getCurrent().setLocale(locales.getValue());			
 			UI.getCurrent().getPage().reload();
 		});
 		
-		welcome = new Label();
+		welcome = new NativeLabel();
 		welcome.getElement().getStyle().set("width", "100%");
 		
 		Button logoutButton = new Button(VaadinIcon.EXIT.create());
@@ -65,11 +65,11 @@ public class AuthenticatedLayout extends AppLayout
 		addToNavbar(new DrawerToggle(), img, welcome, locales, logoutButton);
 		
 		Tabs tabs = new Tabs(
-				new Tab(new RouterLink("Products", ProductsView.class)),
-				new Tab(new RouterLink("Brands", BrandsView.class)),
-				new Tab(new RouterLink("Orders", OrdersView.class))				
+				new Tab(new RouterLink(getTranslation("products.title"), ProductsView.class)),
+				new Tab(new RouterLink(getTranslation("brands.title"), BrandsView.class)),
+				new Tab(new RouterLink(getTranslation("orders.title"), OrdersView.class))				
 		);
-		userTab = new Tab(new RouterLink("Users", UsersView.class));
+		userTab = new Tab(new RouterLink(getTranslation("users.title"), UsersView.class));
 		userTab.setVisible(false);
 		tabs.add(userTab);
 		

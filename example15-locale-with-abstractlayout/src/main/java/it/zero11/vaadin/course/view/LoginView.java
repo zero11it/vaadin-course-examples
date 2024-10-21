@@ -1,6 +1,6 @@
 package it.zero11.vaadin.course.view;
 
-import java.util.Locale;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H1;
@@ -22,6 +22,9 @@ public class LoginView extends VerticalLayout {
 
 	public static final String USER_SESSION_ATTRIBUTE = "user";
 	
+	@Autowired
+	private UserService userService;
+	
 	public LoginView() {
 		add(new H1("Benvenuto"));
 		setAlignItems(Alignment.CENTER);
@@ -29,12 +32,11 @@ public class LoginView extends VerticalLayout {
 		LoginForm loginForm = new LoginForm();
 		loginForm.addLoginListener(event -> {
 			try {
-				User user = UserService.login(event.getUsername(), 
+				User user = userService.login(event.getUsername(), 
 						event.getPassword());
 				UI.getCurrent().getSession()
 					.setAttribute(USER_SESSION_ATTRIBUTE, user);
-				
-				UI.getCurrent().navigate(ProductsView.class);				
+				UI.getCurrent().navigate(ProductsView.class);
 			} catch (NoUserException e) {
 				Notification.show("L'utente non esiste");
 				loginForm.setEnabled(true);

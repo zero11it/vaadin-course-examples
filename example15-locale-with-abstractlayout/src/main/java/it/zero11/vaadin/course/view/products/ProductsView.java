@@ -2,6 +2,9 @@ package it.zero11.vaadin.course.view.products;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Stream;
+
+import org.springframework.data.domain.Pageable;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
@@ -11,27 +14,27 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.HeaderRow.HeaderCell;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
+import it.zero11.vaadin.course.data.ProductRepository;
 import it.zero11.vaadin.course.layout.AuthenticatedLayout;
 import it.zero11.vaadin.course.model.Product;
-import it.zero11.vaadin.course.service.ProductService;
+import it.zero11.vaadin.course.utils.VaadinUtils;
 import it.zero11.vaadin.course.view.AbstractSearchView;
 
 @Route(value = "", layout = AuthenticatedLayout.class)
-@PageTitle("Products")
 public class ProductsView extends AbstractSearchView<Product> {
 	private static final long serialVersionUID = 1L;
 	
@@ -39,42 +42,22 @@ public class ProductsView extends AbstractSearchView<Product> {
 	private NumberField minPriceFilter;
 	private NumberField maxPriceFilter;
 	
-	public ProductsView() {
-		super();		
+	private final ProductRepository productRepository; 
+
+	public ProductsView(ProductRepository productRepository) {
+		this.productRepository = productRepository;
+		render();
 	}
 
 	@Override
 	protected String getTitle() {
-		return "Products";
+		return getTranslation("products.title");
 	}
 
-	private DataProvider<Product, Void> createDataProvider() {
-		return DataProvider.fromCallbacks( 
-				query -> {
-					BigDecimal min = minPriceFilter.getValue() != null ? 
-							new BigDecimal(minPriceFilter.getValue()) : null;
-					BigDecimal max = maxPriceFilter.getValue() != null ? 
-							new BigDecimal(maxPriceFilter.getValue()) : null;
-					
-					return ProductService.findBy(query.getOffset(), query.getLimit(), query.getSortOrders(),
-							skuFilter.getValue(), min, max)
-							.stream();
-				},
-				query -> {
-					BigDecimal min = minPriceFilter.getValue() != null ? 
-							new BigDecimal(minPriceFilter.getValue()) : null;
-					BigDecimal max = maxPriceFilter.getValue() != null ? 
-							new BigDecimal(maxPriceFilter.getValue()) : null;
-							
-					return ProductService.countBy(skuFilter.getValue(), min, max).intValue();
-				}
-			);	
-	}
-	
 	@Override
 	protected void addFilters(HasComponents container) {
 		
-		skuFilter = new TextField("Sku");	
+		skuFilter = new TextField(getTranslation("products.sku"));	
 		skuFilter.setValueChangeMode(ValueChangeMode.LAZY);
 		
 		skuFilter.addValueChangeListener(event -> 
@@ -83,7 +66,7 @@ public class ProductsView extends AbstractSearchView<Product> {
 		VerticalLayout priceRangeLayout = new VerticalLayout();
 		priceRangeLayout.setMargin(false);
 		priceRangeLayout.setPadding(false);
-		priceRangeLayout.add(new Label("Range di prezzo"));		
+		priceRangeLayout.add(new NativeLabel(getTranslation("products.pricerange")));		
 		minPriceFilter = new NumberField();
 		maxPriceFilter = new NumberField();
 		minPriceFilter.setValueChangeMode(ValueChangeMode.LAZY);
@@ -112,7 +95,7 @@ public class ProductsView extends AbstractSearchView<Product> {
 					image.setHeight("40px");
 					component.add(image);
 				}
-				Label label = new Label(product.getBrand().getName());
+				NativeLabel label = new NativeLabel(product.getBrand().getName());
 				label.getElement().getStyle().set("padding", "10px");
 				component.add(label);
 			}
@@ -125,7 +108,7 @@ public class ProductsView extends AbstractSearchView<Product> {
 			return name1.compareTo(name2);
 		})
 		.setSortProperty("brand.name")
-		.setHeader("Brand").setSortable(true);
+		.setHeader(getTranslation("brands.brand")).setSortable(true);
 		Column<Product> eanCol = productsGrid.addColumn(Product::getEan).setHeader("Ean")
 			.setSortProperty("ean")
 			.setSortable(true).setResizable(true).setFlexGrow(0);
@@ -134,16 +117,16 @@ public class ProductsView extends AbstractSearchView<Product> {
 					"" :
 					product.getPublishDate().format(
 							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		}).setHeader("Published date")
+		}).setHeader(getTranslation("products.publishingdate"))
 		.setSortProperty("publishDate")
 			.setResizable(true).setSortable(true).setFlexGrow(0);		
-		Column<Product> skuCol = productsGrid.addColumn(Product::getSku).setHeader("SKU");
-		Column<Product> descCol =productsGrid.addColumn(Product::getDescription).setHeader("Description");
+		Column<Product> skuCol = productsGrid.addColumn(Product::getSku).setHeader(getTranslation("products.sku"));
+		Column<Product> descCol =productsGrid.addColumn(Product::getDescription).setHeader(getTranslation("products.description"));
 
-		Column<Product> availabilityCol = productsGrid.addColumn(Product::getAvailability).setHeader("Availability")
+		Column<Product> availabilityCol = productsGrid.addColumn(Product::getAvailability).setHeader(getTranslation("products.availablility"))
 				.setSortProperty("availability")
 				.setSortable(true).setResizable(true).setFlexGrow(0);
-		Column<Product> priceCol = productsGrid.addColumn(Product::getPrice).setHeader("Price").setSortable(true)
+		Column<Product> priceCol = productsGrid.addColumn(Product::getPrice).setHeader(getTranslation("products.price")).setSortable(true)
 				.setSortProperty("price")				
 				.setResizable(true).setFlexGrow(0);
 			
@@ -157,7 +140,7 @@ public class ProductsView extends AbstractSearchView<Product> {
 			
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(e -> {
-				ProductService.remove(product);
+				productRepository.delete(product);
 
 				productsGrid.getDataProvider().refreshAll();
 			});
@@ -180,19 +163,33 @@ public class ProductsView extends AbstractSearchView<Product> {
 		HeaderRow header = productsGrid.prependHeaderRow();
 		HeaderCell anagCell = header.join(idCol, brandCol, eanCol, 
 				publishDateCol, skuCol, descCol);
-		anagCell.setComponent(new Label("Dati anagrafici"));
+		anagCell.setComponent(new NativeLabel(getTranslation("products.infodata")));
 
 		HeaderCell warehouseCell = header.join(availabilityCol, priceCol, actionCol);
-		warehouseCell.setComponent(new Label("Dati magazzino"));
+		warehouseCell.setComponent(new NativeLabel(getTranslation("products.warehousedata")));
 		
-		productsGrid.setDataProvider(createDataProvider());
+		productsGrid.setItems(query -> {
+		      
+			try {
+				BigDecimal min = minPriceFilter.getValue() != null ? 
+						new BigDecimal(minPriceFilter.getValue()) : null;
+				BigDecimal max = maxPriceFilter.getValue() != null ? 
+						new BigDecimal(maxPriceFilter.getValue()) : null;
+				Pageable pageable = VaadinUtils.toPageable(query);
+				
+				return productRepository.searchBy(skuFilter.getValue(), min, max, pageable).stream();
+			} catch (Exception e) {
+				Notification.show(e.getMessage());
+				return Stream.empty();
+			}
+		});
 		
 		return productsGrid;
 	}
 
 	@Override
 	protected void addActions(HasComponents container) {
-		container.add(new RouterLink("New product", ProductsEditView.class));
+		container.add(new RouterLink(getTranslation("products.new"), ProductsEditView.class));
 	}
 
 }
