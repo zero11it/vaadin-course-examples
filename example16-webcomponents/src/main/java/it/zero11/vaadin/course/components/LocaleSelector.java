@@ -8,12 +8,12 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.server.VaadinSession;
 
-import it.zero11.vaadin.course.utils.TranslationProvider;
+import it.zero11.vaadin.course.i18n.Corso18NProvider;
 
 public class LocaleSelector extends Select<Locale> {
 	
-	public LocaleSelector(String height) {
-		setItems(new TranslationProvider().getProvidedLocales());
+	public LocaleSelector(String height, Corso18NProvider i18n) {
+		setItems(i18n.getProvidedLocales());
 		setRenderer(new ComponentRenderer<Image, Locale>(
 				locale -> {
 					Image img = new Image(
@@ -32,8 +32,8 @@ public class LocaleSelector extends Select<Locale> {
 		});
 	}
 	
-	public LocaleSelector() {
-		this("25px");
+	public LocaleSelector(Corso18NProvider i18n) {
+		this("25px", i18n);
 	}
 	
 }

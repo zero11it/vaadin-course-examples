@@ -14,7 +14,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
@@ -26,18 +25,21 @@ import it.zero11.vaadin.course.view.AbstractSearchView;
 import it.zero11.vaadin.course.view.LoginView;
 
 @Route(value = "users", layout = AuthenticatedLayout.class)
-@PageTitle("Users")
 public class UsersView extends AbstractSearchView<User> 
 	implements BeforeEnterObserver {
 	private static final long serialVersionUID = 1L;
 		
-	public UsersView() {
-		super();		
+	private final UserService userService;
+
+	public UsersView(UserService userService) {
+		this.userService = userService;
+		
+		render();
 		updateUserData();
 	}
 
 	private void updateUserData() {
-		List<User> users = UserService.findAll();
+		List<User> users = userService.findAll();
 		grid.setItems(users);
 	}
 
@@ -89,7 +91,7 @@ public class UsersView extends AbstractSearchView<User>
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(event -> {
 				try {
-					UserService.remove(user);
+					userService.remove(user);
 
 					updateUserData();
 				}catch(Exception exception) {

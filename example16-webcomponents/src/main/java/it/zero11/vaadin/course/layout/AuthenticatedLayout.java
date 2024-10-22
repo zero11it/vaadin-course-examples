@@ -1,7 +1,5 @@
 package it.zero11.vaadin.course.layout;
 
-import java.util.Locale;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -9,19 +7,17 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.VaadinSession;
 
 import it.zero11.vaadin.course.components.LocaleSelector;
+import it.zero11.vaadin.course.i18n.Corso18NProvider;
 import it.zero11.vaadin.course.model.Ruolo;
 import it.zero11.vaadin.course.model.User;
-import it.zero11.vaadin.course.utils.TranslationProvider;
 import it.zero11.vaadin.course.view.LoginView;
 import it.zero11.vaadin.course.view.brand.BrandsView;
 import it.zero11.vaadin.course.view.orders.OrdersView;
@@ -37,7 +33,7 @@ public class AuthenticatedLayout extends AppLayout
 	
 	private Tab userTab;
 	
-	public AuthenticatedLayout() {
+	public AuthenticatedLayout(Corso18NProvider i18n) {
 		setPrimarySection(Section.NAVBAR);
 
 		Image img = new Image("https://i.imgur.com/GPpnszs.png", "Vaadin Logo");
@@ -53,7 +49,7 @@ public class AuthenticatedLayout extends AppLayout
 			UI.getCurrent().navigate(LoginView.class);
 		});
 		
-		LocaleSelector selector = new LocaleSelector("10px");
+		LocaleSelector selector = new LocaleSelector("10px", i18n);
 		addToNavbar(new DrawerToggle(), img, welcome, selector, logoutButton);
 		
 		Tabs tabs = new Tabs(
