@@ -14,11 +14,11 @@ public class HelloWorldWithImageView extends VerticalLayout {
 	public HelloWorldWithImageView() {
         add(new NativeLabel("Hello from Zero11 & Vaadin!"));
         
-        Image logoZero11 = new Image("icons/logo-zero11.svg", "Zero11");
+        Image logoZero11 = new Image("themes/my-theme/icons/logo-zero11.svg", "Zero11");
         logoZero11.setWidth("200px");
         add(logoZero11);
         
-        Image logoVaadin = new Image("icons/logo-vaadin.svg", "Vaadin");
+        Image logoVaadin = new Image("themes/my-theme/icons/logo-vaadin.svg", "Vaadin");
         logoVaadin.setWidth("200px");
         add(logoVaadin);
         
