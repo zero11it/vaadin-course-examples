@@ -6,62 +6,60 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
+import it.zero11.vaadin.course.data.BrandRepository;
 import it.zero11.vaadin.course.layout.AuthenticatedLayout;
 import it.zero11.vaadin.course.model.Brand;
-import it.zero11.vaadin.course.service.BrandService;
 import it.zero11.vaadin.course.view.AbstractSearchView;
 
 @SuppressWarnings("serial")
 @Route(value = "brands", layout = AuthenticatedLayout.class)
-@PageTitle("Brands")
-public class BrandsView extends AbstractSearchView<Brand>  {
+public class BrandsView extends AbstractSearchView<Brand> implements HasDynamicTitle {
 		
 	private ListDataProvider<Brand> dataProvider;
-	private Label totalResultLabel;
+	private NativeLabel totalResultLabel;
 	
-	public BrandsView() {
-		super();
+	private final BrandRepository brandRepository;
+	
+	public BrandsView(BrandRepository brandRepository) {
+		this.brandRepository = brandRepository;	
 		
+		render();
 		updateBrandData();
 	}
 
 	private void updateBrandData() {
-		List<Brand> brands = BrandService.findAll();
+		List<Brand> brands = brandRepository.findAll();
 		dataProvider = new ListDataProvider<Brand>(brands);
 		grid.setDataProvider(dataProvider);
-		totalResultLabel.setText("Risultati: " + brands.size());
+		totalResultLabel.setText(getTranslation("generic.results") + ": " + brands.size());
 	}
 
 	@Override
 	protected String getTitle() {
-		return "Brands";
+		return getTranslation("brands.title");
 	}
 
 	@Override
 	protected void addFilters(HasComponents container) {
 		TextField searchTextField = new TextField();
-		searchTextField.setLabel("Ricerca per nome");
+		searchTextField.setLabel(getTranslation("brands.search.name"));
 		searchTextField.addValueChangeListener(event -> {
 			if (event.getValue() == null)
 				dataProvider.clearFilters();
@@ -82,12 +80,12 @@ public class BrandsView extends AbstractSearchView<Brand>  {
 			.setHeader("Id")
 			.setFlexGrow(0)
 			.setWidth("50px");
-		Column<Brand> nameCol = brandGrid.addColumn(Brand::getName).setHeader("Name")
+		Column<Brand> nameCol = brandGrid.addColumn(Brand::getName).setHeader(getTranslation("brands.grid.name"))
 			.setFlexGrow(1)
 			.setSortable(true);
 		brandGrid.addColumn(new ComponentRenderer<>(brand -> {
 			if (brand.getImageUrl() == null) 
-				return new Label();
+				return new NativeLabel();
 			else {
 				Image image = new Image(brand.getImageUrl(), "boh");
 				image.setHeight("40px");
@@ -95,10 +93,10 @@ public class BrandsView extends AbstractSearchView<Brand>  {
 			}
 		}))
 		.setFlexGrow(0)
-		.setHeader("Image");
+		.setHeader(getTranslation("brands.grid.image"));
 		
 		brandGrid.addColumn(new ComponentRenderer<Component, Brand>(brand -> {
-			HorizontalLayout container = new HorizontalLayout();
+			Span container = new Span();
 			
 			Button edit = new Button("", VaadinIcon.EDIT.create());
 			edit.addClickListener(event -> {
@@ -108,7 +106,7 @@ public class BrandsView extends AbstractSearchView<Brand>  {
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(event -> {
 				try {
-					BrandService.remove(brand);
+					brandRepository.delete(brand);
 
 					updateBrandData();
 				}catch(Exception exception) {
@@ -120,12 +118,12 @@ public class BrandsView extends AbstractSearchView<Brand>  {
 			return container;
 		}))
 		.setFlexGrow(0)
-		.setWidth("100px")
-		.setHeader("Azioni");
+		.setWidth("50px")
+		.setHeader(getTranslation("brands.grid.actions"));
 
 		brandGrid.setItemDetailsRenderer(new ComponentRenderer<Component, Brand>(
 				brand -> {
-					Label content = new Label();
+					NativeLabel content = new NativeLabel();
 					//content.setText(brand.getDescription());
 					content.getElement().setProperty("innerHTML", brand.getDescription());
 					return content;
@@ -133,7 +131,7 @@ public class BrandsView extends AbstractSearchView<Brand>  {
 		
 		brandGrid.setSelectionMode(SelectionMode.MULTI);
 				
-		totalResultLabel = new Label();
+		totalResultLabel = new NativeLabel();
 		FooterRow footer = brandGrid.appendFooterRow();
 		footer.getCell(nameCol).setComponent(totalResultLabel);
 		
@@ -142,33 +140,20 @@ public class BrandsView extends AbstractSearchView<Brand>  {
 
 	@Override
 	protected void addActions(HasComponents container) {
-		Button newBrands = new Button(VaadinIcon.PLUS.create(), e -> {
-			UI.getCurrent().navigate(BrandsEditView.class);
-		});
-		newBrands.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
+
+		container.add(new RouterLink(getTranslation("brands.new"), BrandsEditView.class));
 		
-		Button multiDeleteButton = new Button(VaadinIcon.TRASH.create());
+		Button multiDeleteButton = new Button(getTranslation("generic.delete.selected"));
 		multiDeleteButton.addClickListener(e -> {
-			Dialog confirmDialog = new Dialog();
-			confirmDialog.setCloseOnOutsideClick(false);
-			confirmDialog.add(new Paragraph("Vuoi cancellare ?"));
-			Button confirmButton = new Button("Sì", e2 -> {
-				for (Brand brand : grid.getSelectedItems()) {
-					BrandService.remove(brand);
-				}
-				updateBrandData();
-				Notification.show("Cancellazione effettuata");
-				confirmDialog.close();
-			});
-			Button cancelButton = new Button("No", e2 -> {
-				confirmDialog.close();
-			});
-			confirmDialog.add(new HorizontalLayout(confirmButton, cancelButton));
-			confirmDialog.open();
+			for (Brand brand : grid.getSelectedItems()) {
+				brandRepository.delete(brand);
+			}
+			updateBrandData();
+			Notification.show(getTranslation("generic.delete.completed"));
 		});
-		multiDeleteButton.addThemeVariants(ButtonVariant.LUMO_LARGE);
+		multiDeleteButton.setThemeName("tertiary");
+		container.add(multiDeleteButton);
 		
-		container.add(newBrands, multiDeleteButton);
 	}
 
 }

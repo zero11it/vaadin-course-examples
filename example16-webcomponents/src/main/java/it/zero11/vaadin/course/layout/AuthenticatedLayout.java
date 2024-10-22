@@ -5,7 +5,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -29,7 +29,7 @@ public class AuthenticatedLayout extends AppLayout
 	implements RouterLayout, BeforeEnterObserver {
 	
 	private User user;
-	private Label welcome;
+	private NativeLabel welcome;
 	
 	private Tab userTab;
 	
@@ -39,7 +39,7 @@ public class AuthenticatedLayout extends AppLayout
 		Image img = new Image("https://i.imgur.com/GPpnszs.png", "Vaadin Logo");
 		img.setHeight("44px");
 		
-		welcome = new Label();
+		welcome = new NativeLabel();
 		welcome.getElement().getStyle().set("width", "100%");
 		
 		Button logoutButton = new Button(VaadinIcon.EXIT.create());

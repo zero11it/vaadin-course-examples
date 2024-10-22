@@ -6,17 +6,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
@@ -26,21 +23,23 @@ import it.zero11.vaadin.course.model.User;
 import it.zero11.vaadin.course.service.UserService;
 import it.zero11.vaadin.course.view.AbstractSearchView;
 import it.zero11.vaadin.course.view.LoginView;
-import it.zero11.vaadin.course.view.products.ProductsEditView;
 
 @Route(value = "users", layout = AuthenticatedLayout.class)
-@PageTitle("Users")
 public class UsersView extends AbstractSearchView<User> 
 	implements BeforeEnterObserver {
 	private static final long serialVersionUID = 1L;
 		
-	public UsersView() {
-		super();		
+	private final UserService userService;
+
+	public UsersView(UserService userService) {
+		this.userService = userService;
+		
+		render();
 		updateUserData();
 	}
 
 	private void updateUserData() {
-		List<User> users = UserService.findAll();
+		List<User> users = userService.findAll();
 		grid.setItems(users);
 	}
 
@@ -82,17 +81,17 @@ public class UsersView extends AbstractSearchView<User>
 				.setSortable(true);
 		
 		userGrid.addColumn(new ComponentRenderer<Component, User>(user -> {
-			HorizontalLayout container = new HorizontalLayout();
+			Span container = new Span();
 			
-			Button edit = new Button(VaadinIcon.EDIT.create());
+			Button edit = new Button("", VaadinIcon.EDIT.create());
 			edit.addClickListener(event -> {
 				UI.getCurrent().navigate(UserEditView.class, user.getId());
 			});
 			
-			Button delete = new Button(VaadinIcon.TRASH.create());
+			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(event -> {
 				try {
-					UserService.remove(user);
+					userService.remove(user);
 
 					updateUserData();
 				}catch(Exception exception) {
@@ -104,7 +103,7 @@ public class UsersView extends AbstractSearchView<User>
 			return container;
 		}))
 		.setFlexGrow(0)
-		.setWidth("100px")
+		.setWidth("80px")
 		.setHeader("Azioni");
 
 		return userGrid;
@@ -112,11 +111,7 @@ public class UsersView extends AbstractSearchView<User>
 
 	@Override
 	protected void addActions(HasComponents container) {
-		Button newUser = new Button(VaadinIcon.PLUS.create(), e -> {
-			UI.getCurrent().navigate(UserEditView.class);
-		});
-		newUser.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
-		container.add(newUser);
+		container.add(new RouterLink("Nuovo User", UserEditView.class));
 	}
 
 }

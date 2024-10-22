@@ -1,4 +1,0 @@
-:host(.menu[selected]){
-	background: var(--lumo-primary-text-color);
-	color: white;
-}

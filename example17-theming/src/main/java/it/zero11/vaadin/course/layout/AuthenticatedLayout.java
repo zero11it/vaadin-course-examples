@@ -1,19 +1,15 @@
 package it.zero11.vaadin.course.layout;
 
-import java.util.Locale;
-
-import javax.servlet.http.Cookie;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -22,42 +18,38 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
-import com.vaadin.flow.theme.material.Material;
 
 import it.zero11.vaadin.course.components.LocaleSelector;
+import it.zero11.vaadin.course.i18n.Corso18NProvider;
 import it.zero11.vaadin.course.model.Ruolo;
 import it.zero11.vaadin.course.model.User;
 import it.zero11.vaadin.course.service.UserService;
-import it.zero11.vaadin.course.utils.TranslationProvider;
 import it.zero11.vaadin.course.view.LoginView;
 import it.zero11.vaadin.course.view.brand.BrandsView;
 import it.zero11.vaadin.course.view.orders.OrdersView;
 import it.zero11.vaadin.course.view.products.ProductsView;
 import it.zero11.vaadin.course.view.users.UsersView;
+import jakarta.servlet.http.Cookie;
 
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-@CssImport(value = "./styles/shared-styles.css")
-@CssImport(value = "./styles/my-app-layout-style.css", themeFor = "vaadin-app-layout")
-@CssImport(value = "./styles/my-tab-style.css", themeFor = "vaadin-tab")
 @SuppressWarnings("serial")
 public class AuthenticatedLayout extends AppLayout 
 	implements RouterLayout, BeforeEnterObserver {
 	
 	private User user;
-	private Label welcome;
+	private NativeLabel welcome;
 	
 	private Tab userTab;
 	
-	public AuthenticatedLayout() {
+	@Autowired
+	private UserService userService;
+	
+	public AuthenticatedLayout(Corso18NProvider i18n) {		
 		setPrimarySection(Section.NAVBAR);
 
 		Image img = new Image("https://i.imgur.com/GPpnszs.png", "Vaadin Logo");
 		img.setHeight("44px");
 		
-		welcome = new Label();
+		welcome = new NativeLabel();
 		welcome.getElement().getStyle().set("width", "100%");
 		
 		Button logoutButton = new Button(VaadinIcon.EXIT.create());
@@ -71,7 +63,7 @@ public class AuthenticatedLayout extends AppLayout
 			UI.getCurrent().navigate(LoginView.class);
 		});
 		
-		LocaleSelector selector = new LocaleSelector("10px");
+		LocaleSelector selector = new LocaleSelector("10px", i18n);
 		addToNavbar(new DrawerToggle(), img, welcome, selector, logoutButton);
 		
 		Tabs tabs = new Tabs(
@@ -109,7 +101,7 @@ public class AuthenticatedLayout extends AppLayout
 				}
 			} 
 			if (token != null) {
-				User user = UserService.findByToken(token);
+				User user = userService.findByToken(token);
 				if (user != null) {
 					UI.getCurrent().getSession()
 					.setAttribute(LoginView.USER_SESSION_ATTRIBUTE, user);

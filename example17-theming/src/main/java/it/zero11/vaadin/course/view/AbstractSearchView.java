@@ -6,15 +6,20 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 
 @SuppressWarnings("serial")
-public abstract class AbstractSearchView<T> extends VerticalLayout {
+public abstract class AbstractSearchView<T> extends VerticalLayout implements HasDynamicTitle {
 
 	protected Grid<T> grid;
 	
 	public AbstractSearchView() {
+		
+	}
+	
+	protected void render() {
 		setSizeFull();
-
+		
 		H1 title = new H1(getTitle());
 		
 		HorizontalLayout actionLayout = new HorizontalLayout();
@@ -45,4 +50,9 @@ public abstract class AbstractSearchView<T> extends VerticalLayout {
 	abstract protected Grid<T> createGrid();
 	
 	abstract protected void addActions(HasComponents container);
+	
+	@Override
+	public String getPageTitle() {
+		return getTitle();
+	}
 }

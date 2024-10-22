@@ -1,39 +1,30 @@
 package it.zero11.vaadin.course.view;
 
-import java.util.Locale;
 import java.util.UUID;
-
-import javax.servlet.http.Cookie;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Page;
-import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import it.zero11.vaadin.course.components.LocaleSelector;
 import it.zero11.vaadin.course.exceptions.NoUserException;
 import it.zero11.vaadin.course.exceptions.UserDisabledException;
 import it.zero11.vaadin.course.exceptions.WrongPasswordException;
+import it.zero11.vaadin.course.i18n.Corso18NProvider;
 import it.zero11.vaadin.course.model.User;
 import it.zero11.vaadin.course.service.UserService;
-import it.zero11.vaadin.course.utils.TranslationProvider;
 import it.zero11.vaadin.course.view.products.ProductsView;
+import jakarta.servlet.http.Cookie;
 
 @SuppressWarnings("serial")
 @Route(value = "login")
@@ -41,18 +32,18 @@ public class LoginView extends VerticalLayout {
 
 	public static final String USER_SESSION_ATTRIBUTE = "user";
 	
-	public LoginView() {
+	public LoginView(Corso18NProvider i18n, UserService userService) {
 		add(new H1(getTranslation("login.welcome")));
 		setAlignItems(Alignment.CENTER);
 		
-		add(new LocaleSelector());
+		add(new LocaleSelector(i18n));
 
 		Checkbox rememberMe = new Checkbox("Ricordami");
 		
 		LoginForm loginForm = new LoginForm();
 		loginForm.addLoginListener(event -> {
 			try {
-				User user = UserService.login(event.getUsername(), 
+				User user = userService.login(event.getUsername(), 
 						event.getPassword());
 				UI.getCurrent().getSession()
 					.setAttribute(USER_SESSION_ATTRIBUTE, user);
@@ -61,7 +52,7 @@ public class LoginView extends VerticalLayout {
 					String token = UUID.randomUUID().toString();
 					user.setToken(token);
 					user.setPassword(null);
-					UserService.save(user);
+					userService.save(user);
 					
 					
 					Cookie cookie = new Cookie("token", token);
