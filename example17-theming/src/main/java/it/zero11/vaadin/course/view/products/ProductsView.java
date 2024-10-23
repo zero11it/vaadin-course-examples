@@ -18,6 +18,7 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -85,7 +86,10 @@ public class ProductsView extends AbstractSearchView<Product> {
 	@Override
 	protected Grid<Product> createGrid() {
 		Grid<Product> productsGrid = new Grid<>();
-		Column<Product> idCol = productsGrid.addColumn(Product::getId).setHeader("Id");
+		Column<Product> idCol = productsGrid.addColumn(Product::getId)
+				.setWidth("40px")
+				.setFlexGrow(0)
+				.setHeader("Id");
 		Column<Product> brandCol = productsGrid.addColumn(new ComponentRenderer<>(product -> {
 			HorizontalLayout component = new HorizontalLayout();
 			component.setDefaultVerticalComponentAlignment(Alignment.CENTER);
@@ -108,6 +112,8 @@ public class ProductsView extends AbstractSearchView<Product> {
 			return name1.compareTo(name2);
 		})
 		.setSortProperty("brand.name")
+		.setWidth("150px")
+		.setFlexGrow(1)
 		.setHeader(getTranslation("brands.brand")).setSortable(true);
 		Column<Product> eanCol = productsGrid.addColumn(Product::getEan).setHeader("Ean")
 			.setSortProperty("ean")
@@ -118,6 +124,7 @@ public class ProductsView extends AbstractSearchView<Product> {
 					product.getPublishDate().format(
 							DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		}).setHeader(getTranslation("products.publishingdate"))
+		.setWidth("150px")
 		.setSortProperty("publishDate")
 			.setResizable(true).setSortable(true).setFlexGrow(0);		
 		Column<Product> skuCol = productsGrid.addColumn(Product::getSku).setHeader(getTranslation("products.sku"));
@@ -140,9 +147,13 @@ public class ProductsView extends AbstractSearchView<Product> {
 			
 			Button delete = new Button("", VaadinIcon.TRASH.create());
 			delete.addClickListener(e -> {
-				productRepository.delete(product);
+				try {
+					productRepository.delete(product);
 
-				productsGrid.getDataProvider().refreshAll();
+					productsGrid.getDataProvider().refreshAll();
+				} catch (Exception e1) {
+					Notification.show(e1.getLocalizedMessage(), 4000, Position.MIDDLE);
+				}
 			});
 
 			span.add(edit, delete);

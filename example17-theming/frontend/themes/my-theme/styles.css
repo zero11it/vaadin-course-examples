@@ -40,3 +40,11 @@ html {
   --lumo-primary-color-10pct: rgba(255, 145, 0, 0.1);
   --lumo-primary-color: hsl(34, 100%, 50%);
 }
+
+vaadin-grid::part(header-cell) {
+	color: #C6FF00;
+}
+
+h1 {
+	color: #C6FF00;
+}

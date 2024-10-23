@@ -38,7 +38,7 @@ public class LoginView extends VerticalLayout {
 		
 		add(new LocaleSelector(i18n));
 
-		Checkbox rememberMe = new Checkbox("Ricordami");
+		Checkbox rememberMe = new Checkbox(getTranslation("login.rememberme"));
 		
 		LoginForm loginForm = new LoginForm();
 		loginForm.addLoginListener(event -> {
@@ -88,15 +88,15 @@ public class LoginView extends VerticalLayout {
 		} 
 		if (!found) {
 			Dialog cookieDialog = new Dialog();
-			cookieDialog.add(new Paragraph("Attetti i cookie ?"));
+			cookieDialog.add(new Paragraph(getTranslation("login.acceptcookies")));
 			
-			Button acceptButton = new Button("Accetta", e -> {
+			Button acceptButton = new Button(getTranslation("generic.accept"), e -> {
 				Cookie cookie = new Cookie("privacy-accepted", "true");
 				VaadinServletResponse.getCurrent().addCookie(cookie);
 				cookieDialog.close();
 			});
 			
-			Button rejectButton = new Button("Rifiuta", e -> {
+			Button rejectButton = new Button(getTranslation("generic.refuse"), e -> {
 				UI.getCurrent().getPage().setLocation("https://www.google.it");
 			});
 			

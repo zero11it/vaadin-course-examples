@@ -35,8 +35,8 @@ import it.zero11.vaadin.course.view.AbstractSearchView;
 public class OrdersView extends AbstractSearchView<Order> {
 
 	private TextField customerFilter;
-	private NumberField minPriceFilter;
-	private NumberField maxPriceFilter;
+//	private NumberField minPriceFilter;
+//	private NumberField maxPriceFilter;
 	private ComboBox<Product> productFilter;
 	
 	private RangeSlider rangeSlider;
@@ -58,7 +58,7 @@ public class OrdersView extends AbstractSearchView<Order> {
 		super.render();
 		circleComponent = new CircleComponent();
 		circleComponent.setPercent(0.0);
-		circleComponent.setColor("#333");
+		circleComponent.setColor("pink");
 		add(circleComponent);
 	}
 
@@ -120,8 +120,8 @@ public class OrdersView extends AbstractSearchView<Order> {
 		
 		rangeSlider = new RangeSlider();
 		rangeSlider.setMin(0.0);
-		rangeSlider.setMax(1000.0);
-		rangeSlider.setLowHighValue(800.0, 900.0);
+		rangeSlider.setMax(2000.0);
+		rangeSlider.setLowHighValue(0.0, 2000.0);
 		rangeSlider.addLowValueChangeListener(e -> updateData());
 		rangeSlider.addHighValueChangeListener(e -> updateData());
 		
@@ -146,7 +146,7 @@ public class OrdersView extends AbstractSearchView<Order> {
 		Column<Order> idCol = ordersGrid.addColumn(Order::getId)
 				.setResizable(true)
 			.setHeader("Id").setWidth("30px");
-		ordersGrid.addColumn(Order::getCustomerName)
+		Column<Order> customerCol =ordersGrid.addColumn(Order::getCustomerName)
 			.setResizable(true)
 			.setHeader(getTranslation("orders.customer")).setWidth("150px");
 		ordersGrid.addColumn(
@@ -174,7 +174,8 @@ public class OrdersView extends AbstractSearchView<Order> {
 		
 		soldLabel = new NativeLabel();
 		FooterRow footer = ordersGrid.appendFooterRow();
-		footer.getCell(idCol).setComponent(soldLabel);
+		footer = ordersGrid.appendFooterRow();
+		footer.join(idCol, customerCol).setComponent(soldLabel);
 		
 		return ordersGrid;
 	}

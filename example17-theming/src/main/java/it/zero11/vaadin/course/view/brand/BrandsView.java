@@ -27,6 +27,7 @@ import it.zero11.vaadin.course.data.BrandRepository;
 import it.zero11.vaadin.course.layout.AuthenticatedLayout;
 import it.zero11.vaadin.course.model.Brand;
 import it.zero11.vaadin.course.view.AbstractSearchView;
+import it.zero11.vaadin.course.view.products.ProductsEditView;
 
 @SuppressWarnings("serial")
 @Route(value = "brands", layout = AuthenticatedLayout.class)
@@ -155,5 +156,6 @@ public class BrandsView extends AbstractSearchView<Brand> implements HasDynamicT
 		container.add(multiDeleteButton);
 		
 	}
+	
 
 }
